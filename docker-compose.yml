@@ -10,6 +10,7 @@ services:
       - "127.0.0.1:3000:3000"  # Vibe-OS web UI (Tailscale handles external access)
     volumes:
       - windsurf-projects:/home/coder/projects
+      - tailscale-state:/var/lib/tailscale
     environment:
       - TS_HOSTNAME=${TS_HOSTNAME:-windsurf-dev}
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
@@ -48,3 +49,5 @@ services:
 volumes:
   windsurf-projects:
     name: windsurf-projects
+  tailscale-state:
+    name: tailscale-state

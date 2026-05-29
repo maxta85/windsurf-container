@@ -8,7 +8,7 @@ service ssh start
 # Start Tailscale
 echo "Starting Tailscale..."
 # Start tailscaled daemon in background
-tailscaled --state=/tmp/tailscaled.state --socket=/tmp/tailscaled.sock &
+tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/tmp/tailscaled.sock &
 sleep 2
 
 # If auth key is provided via environment variable, login
