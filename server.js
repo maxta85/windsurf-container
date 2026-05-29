@@ -3,7 +3,8 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { randomUUID } = require('crypto');
+const crypto = require('crypto');
+const randomUUID = crypto.randomUUID || (() => crypto.randomBytes(16).toString('hex').replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5'));
 const { exec } = require('child_process');
 
 const app = express();
