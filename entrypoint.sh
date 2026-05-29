@@ -25,6 +25,12 @@ fi
 echo "Tailscale status:"
 tailscale --socket=/tmp/tailscaled.sock status || echo "Tailscale not fully started yet"
 
+# Also accept token from a mounted file (avoids docker compose $ escaping issues)
+if [ -z "$WINDSURF_TOKEN" ] && [ -f /run/secrets/windsurf_token ]; then
+    WINDSURF_TOKEN=$(cat /run/secrets/windsurf_token)
+    echo "WINDSURF_TOKEN loaded from /run/secrets/windsurf_token"
+fi
+
 # Start headless Windsurf if WINDSURF_TOKEN is provided
 if [ -n "$WINDSURF_TOKEN" ]; then
     echo "WINDSURF_TOKEN set. Starting headless Windsurf agent..."

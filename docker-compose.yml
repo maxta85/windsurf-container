@@ -7,10 +7,11 @@ services:
     restart: always
     ports:
       - "127.0.0.1:2222:2222"  # SSH only on localhost
-      - "127.0.0.1:3000:3000"  # Vibe-OS web UI (Tailscale handles external access)
+      - "3001:3000"  # Vibe-OS web UI (accessible on all interfaces incl Tailscale)
     volumes:
       - windsurf-projects:/home/coder/projects
       - tailscale-state:/var/lib/tailscale
+      - /home/ai/windsurf-token:/run/secrets/windsurf_token:ro
     environment:
       - TS_HOSTNAME=${TS_HOSTNAME:-windsurf-dev}
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
