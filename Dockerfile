@@ -90,6 +90,14 @@ WORKDIR /home/coder
 # This will be overridden by setup.sh or user's own keys
 # COPY --chown=coder:coder id_rsa.pub /home/coder/.ssh/authorized_keys
 
+# Install Vibe-OS Express server
+COPY package.json /home/coder/package.json
+COPY server.js /home/coder/server.js
+RUN cd /home/coder && npm install --omit=dev && chown -R coder:coder /home/coder/node_modules /home/coder/package-lock.json
+
+# Expose web server port
+EXPOSE 3000
+
 # Entrypoint script to start SSH and Tailscale
 # Run as root to start system services, coder user will be used for SSH login
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

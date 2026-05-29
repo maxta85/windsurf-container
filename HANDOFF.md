@@ -27,6 +27,28 @@ Successfully deployed the windsurf-container to remote server. Fixed multiple is
 ## This Shift
 Integrated windsurfinabox headless Cascade agent into the container. This allows Windsurf's Cascade AI agent to run independently in the container without requiring a local IDE connection. The agent can work server-side while the user is disconnected, providing true cloud-based IDE functionality.
 
+## Vibe-OS Web Server
+The container now includes an Express.js web server (port 3000) that provides a mobile browser interface to the headless Cascade agent.
+
+### How it works
+1. User opens `http://100.94.101.46:3000` (via Tailscale) on phone/browser
+2. User types a prompt and taps "Send to Cascade"
+3. `POST /cascade` writes the prompt to `/home/coder/workspace/windsurf-instructions.txt`
+4. Server triggers the Cascade workflow via xdotool (`/entry-workflow`)
+5. Cascade processes the instructions and appends progress to `windsurf-output.txt`
+6. Browser polls `GET /output` every 2 seconds and displays live output
+7. When `WORK-COMPLETED` appears in output, the session is complete
+
+### File polling pattern
+- Instructions: `/home/coder/workspace/windsurf-instructions.txt`
+- Output: `/home/coder/workspace/windsurf-output.txt`
+- Completion marker: `WORK-COMPLETED` (last line)
+- Timeout: 5 minutes
+
+### Access
+- Port `3000` bound to `127.0.0.1` on host — access via Tailscale IP: `http://100.94.101.46:3000`
+- Requires `WINDSURF_TOKEN` in `.env` for Windsurf headless agent to start
+
 ## Known Issues
 - Tailscale authentication currently requires manual interactive login (no auth key in .env)
 - Container must be rebuilt to persist Tailscale authentication state (state stored in /tmp)

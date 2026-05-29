@@ -131,8 +131,6 @@ captureStep
 pause
 windsurfLogin
 captureStep
-pause
-guiStartWorkflow
-captureStep
-waitUnitFinished
-captureStep
+
+log "Starting Vibe-OS web server on port 3000"
+node /home/coder/server.js
