@@ -132,5 +132,7 @@ pause
 windsurfLogin
 captureStep
 
+log "Waiting for Windsurf UI to settle before starting server..."
+sleep 5
 log "Starting Vibe-OS web server on port 3000"
 node /home/coder/server.js
