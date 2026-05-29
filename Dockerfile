@@ -25,33 +25,44 @@ RUN apt-get update && apt-get install -y \
     docker.io \
     && rm -rf /var/lib/apt/lists/*
 
+# Install X11 dependencies for headless Windsurf
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    xdotool \
+    imagemagick \
+    x11-apps \
+    i3 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Tailscale
 RUN curl -fsSL https://tailscale.com/install.sh | sh
 
-# Install Windsurf IDE server
-# Note: The exact installation method for Windsurf may vary.
-# This example assumes a Debian package is available from Windsurf's repository.
-# Replace with actual installation method as needed.
-RUN echo "Installing Windsurf IDE server..." && \
-    # Example: Add Windsurf repository and install
-    # Replace the following lines with actual Windsurf installation instructions
-    mkdir -p /tmp/windsurf-install && \
-    mkdir -p /opt/windsurf && \
-    cd /tmp/windsurf-install && \
-    # Download Windsurf (example URL - replace with actual)
-    # wget https://windsurf.sh/install.sh && \
-    # chmod +x install.sh && \
-    # ./install.sh
-    # For now, we'll create a placeholder
-    echo "Windsurf installation placeholder - replace with actual installation" > /opt/windsurf/README.md && \
-    ln -s /opt/windsurf/README.md /usr/local/bin/windsurf && \
-    chmod +x /usr/local/bin/windsurf && \
-    rm -rf /tmp/windsurf-install
+# Install Windsurf IDE
+RUN curl -fsSL "https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/windsurf.gpg" | \
+    gpg --dearmor -o /usr/share/keyrings/windsurf-stable-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/windsurf-stable-archive-keyring.gpg arch=amd64] \
+    https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/apt stable main" | \
+    tee /etc/apt/sources.list.d/windsurf.list > /dev/null
+RUN apt-get update
+RUN apt-get install -y windsurf
 
 # Create coder user with sudo NOPASSWD
 RUN useradd -m -s /bin/bash coder && \
     echo 'coder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/coder && \
     chmod 0440 /etc/sudoers.d/coder
+
+# Set up workspace for headless Windsurf
+RUN mkdir -p /home/coder/workspace && \
+    chmod ugo+rwx -R /home/coder/workspace && \
+    chown coder:coder -R /home/coder/workspace
+
+# Set up Windsurf config directory
+RUN mkdir -p /home/coder/.config/i3 && \
+    chown coder:coder -R /home/coder/.config
+
+# Copy windsurfinabox resources
+COPY --chown=coder:coder src/workflows/entry-workflow.md /home/coder/entry-workflow.md
+COPY --chown=coder:coder src/config/i3.conf /home/coder/.config/i3/config
 
 # Set up SSH server
 RUN mkdir -p /var/run/sshd && \
@@ -83,5 +94,9 @@ WORKDIR /home/coder
 # Run as root to start system services, coder user will be used for SSH login
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Copy windsurfinabox entrypoint for headless Windsurf
+COPY src/scripts/entrypoint.sh /usr/local/bin/windsurf-headless.sh
+RUN chmod +x /usr/local/bin/windsurf-headless.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

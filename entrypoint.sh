@@ -25,9 +25,24 @@ fi
 echo "Tailscale status:"
 tailscale --socket=/tmp/tailscaled.sock status || echo "Tailscale not fully started yet"
 
+# Start headless Windsurf if WINDSURF_TOKEN is provided
+if [ -n "$WINDSURF_TOKEN" ]; then
+    echo "WINDSURF_TOKEN set. Starting headless Windsurf agent..."
+    echo "Instructions file: /home/coder/workspace/windsurf-instructions.txt"
+    echo "Output file: /home/coder/workspace/windsurf-output.txt"
+    sudo -u coder WINDSURF_TOKEN="$WINDSURF_TOKEN" /usr/local/bin/windsurf-headless.sh
+else
+    echo "WINDSURF_TOKEN not set. Headless Windsurf agent not started."
+    echo "To start headless Windsurf agent manually:"
+    echo "  1. Create /home/coder/workspace/windsurf-instructions.txt with your instructions"
+    echo "  2. Set WINDSURF_TOKEN environment variable"
+    echo "  3. Run: sudo -u coder WINDSURF_TOKEN=\$WINDSURF_TOKEN /usr/local/bin/windsurf-headless.sh"
+fi
+
 # Keep container running
-echo "Container is ready. SSH available on port 2222."
-echo "To stop the container, press Ctrl+C or run 'docker stop <container>'."
+echo "Container ready. Services running:"
+echo "  - SSH on port 2222"
+echo "  - Tailscale VPN"
 
 # Wait indefinitely
 while true; do

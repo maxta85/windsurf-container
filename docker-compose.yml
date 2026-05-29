@@ -12,6 +12,7 @@ services:
     environment:
       - TS_HOSTNAME=${TS_HOSTNAME:-windsurf-dev}
       - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
+      - WINDSURF_TOKEN=${WINDSURF_TOKEN:-}
     # Security settings
     # Note: no-new-privileges disabled to allow SSH and Tailscale to start properly
     # cap_drop: ALL removed to allow essential services to run
