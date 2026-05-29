@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  windsurf-dev:
+    build: .
+    container_name: windsurf-dev
+    restart: always
+    ports:
+      - "127.0.0.1:2222:2222"  # SSH only on localhost
+    volumes:
+      - windsurf-projects:/home/coder/projects
+    environment:
+      - TS_HOSTNAME=${TS_HOSTNAME:-windsurf-dev}
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
+    # Security settings
+    # Note: no-new-privileges disabled to allow SSH and Tailscale to start properly
+    # cap_drop: ALL removed to allow essential services to run
+    cap_add:
+      - CHOWN  # Needed for some operations
+      - DAC_OVERRIDE  # Might be needed for file access
+      - FSETID  # Needed for setting file IDs
+      - NET_BIND_SERVICE  # Bind to ports < 1024
+      - NET_RAW  # For ping, etc.
+      - SETGID  # Set group ID
+      - SETUID  # Set user ID
+      - MKNOD  # Create special files using mknod
+      - SYS_ADMIN  # Needed for Tailscale
+      - NET_ADMIN  # Needed for network operations
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 2G
+    # Read-only root filesystem (with exceptions for necessary writable paths)
+    # Note: We'll make rootfs read-only except for specific mounts
+    # For simplicity in this example, we'll rely on user namespace and caps
+    # A more secure approach would be to set read_only: true and override specific paths
+    # But that complicates development. We'll note this in README.
+
+volumes:
+  windsurf-projects:
+    name: windsurf-projects
