@@ -7,7 +7,7 @@ services:
     restart: always
     ports:
       - "127.0.0.1:2222:2222"  # SSH only on localhost
-      - "3001:3000"  # Vibe-OS web UI (accessible on all interfaces incl Tailscale)
+      - "10.0.0.67:3001:3000"  # Vibe-OS web UI via LAN IP
     volumes:
       - windsurf-projects:/home/coder/projects
       - tailscale-state:/var/lib/tailscale
